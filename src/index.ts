@@ -31,7 +31,7 @@ io.on('connection', (socket) => {
     })
     socket.on('sendPrivateMessage', ({ recipient, message }) => {
         try {
-            socket.to(recipient).emit('privateMessage', message)
+            socket.to(recipient).emit('privateMessage', socket.id, message)
         } catch (error) {
             console.log(error);
         }
@@ -44,16 +44,6 @@ io.on('connection', (socket) => {
 server.get('/online-users', (req, res) => {
     res.send({ onlineUsers })
 })
-
-
-
-
-
-
-
-
-
-
 
 mongoose.connect(<string>process.env.MONGO_CONNECTION)
 mongoose.connection.on('connected', () => {
