@@ -3,10 +3,10 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import cors from 'cors'
 import mongoose from 'mongoose'
-import RoomModel from './rooms/schema'
 import listEndpoints from 'express-list-endpoints'
+import { User } from './types'
 
-let onlineUsers = []
+let onlineUsers: User[] = []
 
 const server = express()
 
@@ -15,8 +15,37 @@ server.use(cors())
 const httpServer = createServer(server)
 const io = new Server(httpServer, {})
 
+io.on('connection', (socket) => {
+    socket.on('setUsername', ({ username, room }) => {
+        socket.join(room)
+        onlineUsers.push({ username, id: socket.id, room })
+        socket.emit('loggedin')
+        socket.broadcast.emit('newConnection')
+    })
+    socket.on('sendMessage', ({ message, room }) => {
+        try {
+            // await RoomModel.findOneAndUpdate({ name: room }, { $push: { messages: message } })
+            socket.to(room).emit('message', message)
+        } catch (error) {
+            console.log(error)
+            // socket.emit('error', { error: 'Cannot save to DB.' })
+        }
+    })
+    socket.on('sendPrivateMessage', ({ message, room }) => {
+        try {
+            socket.to(room).emit('message', message)
+        } catch (error) {
+            console.log(error);
+        }
+    })
+    socket.on('disconnect', () => {
+        onlineUsers = onlineUsers.filter(u => u.id !== socket.id)
+    })
+})
 
-
+server.get('/online-users', (req, res) => {
+    res.send({ onlineUsers })
+})
 
 
 
