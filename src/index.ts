@@ -25,6 +25,7 @@ io.on('connection', (socket) => {
     socket.on('sendMessage', ({ message, room }) => {
         try {
             // await RoomModel.findOneAndUpdate({ name: room }, { $push: { messages: message } })
+            console.log('sendMessage');
             socket.to(room).emit('message', message)
         } catch (error) {
             console.log(error)
@@ -33,7 +34,10 @@ io.on('connection', (socket) => {
     })
     socket.on('sendPrivateMessage', ({ message, room }) => {
         try {
+            socket.join(room)
             socket.to(room).emit('message', message)
+            console.log('sendPrivateMessage');
+
         } catch (error) {
             console.log(error);
         }
