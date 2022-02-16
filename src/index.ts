@@ -24,20 +24,14 @@ io.on('connection', (socket) => {
     })
     socket.on('sendMessage', ({ message, room }) => {
         try {
-            // await RoomModel.findOneAndUpdate({ name: room }, { $push: { messages: message } })
-            console.log('sendMessage');
             socket.to(room).emit('message', message)
         } catch (error) {
             console.log(error)
-            // socket.emit('error', { error: 'Cannot save to DB.' })
         }
     })
-    socket.on('sendPrivateMessage', ({ message, room }) => {
+    socket.on('sendPrivateMessage', ({ recipient, message }) => {
         try {
-            socket.join(room)
-            socket.to(room).emit('message', message)
-            console.log('sendPrivateMessage');
-
+            socket.to(recipient).emit('privateMessage', message)
         } catch (error) {
             console.log(error);
         }
