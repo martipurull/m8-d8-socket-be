@@ -31,7 +31,7 @@ io.on('connection', (socket) => {
     })
     socket.on('sendPrivateMessage', ({ recipient, message }) => {
         try {
-            socket.to(recipient).emit('privateMessage', socket.id, message)
+            socket.to(recipient.id).emit('privateMessage', socket.id, message)
         } catch (error) {
             console.log(error);
         }
